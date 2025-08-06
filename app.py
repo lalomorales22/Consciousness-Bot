@@ -12,23 +12,6 @@ import threading
 # Ollama LLM API endpoint
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-# Define your models dictionary
-models = {
-    "Granite3Moe_3b": "granite3-moe:3b",
-    "Qwen2_5_Coder_7b": "qwen2.5-coder:7b",
-    "Granite3Dense": "granite3-dense:latest",
-    "Phi3_5": "phi3.5:latest",
-    "SmallThinker": "smallthinker:latest",
-    "Gemma": "gemma:latest",
-    "Llama3_2_3b": "llama3.2:3b",
-    "DeepSeekR1_8b": "deepseek-r1:8b",
-    "DeepSeekR1_14b": "deepseek-r1:14b",
-    "Llama3_1": "llama3.1:latest",
-    "CommandR7b": "command-r7b:latest",
-    "Dolphin3": "dolphin3:latest",
-    "Phi4": "phi4:latest",
-    "Qwq_19b": "qwq:latest"
-}
 
 def call_ollama_api(model, prompt, max_tokens=2048, temperature=0.7, top_p=0.9, stop=None):
     """
@@ -58,9 +41,26 @@ def call_ollama_api(model, prompt, max_tokens=2048, temperature=0.7, top_p=0.9, 
     except Exception as e:
         return f"[Error contacting Ollama API: {e}]"
 
+def get_installed_models():
+    """
+    Fetches the list of installed models from the Ollama API.
+    """
+    try:
+        response = requests.get("http://localhost:11434/api/tags")
+        if response.status_code == 200:
+            models_data = response.json().get("models", [])
+            return {model['name']: model['name'] for model in models_data}
+        else:
+            return {"error": "Failed to fetch models"}
+    except requests.exceptions.RequestException as e:
+        return {"error": f"API request failed: {e}"}
+
 # =========================
 # Tkinter App Setup
 # =========================
+
+# Get the list of installed models
+models = get_installed_models()
 
 # Create the main application window
 root = tk.Tk()
@@ -211,10 +211,13 @@ model_label = ttk.Label(model_frame, text="Select Model:")
 model_label.pack(side="left", padx=(0, 5))
 
 # Get model names for the dropdown
-model_names = list(models.keys())
+model_names = list(models.keys()) if models else []
 model_var = tk.StringVar()
 model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=model_names, state="readonly")
-model_dropdown.set(model_names[0])  # Set default value
+if model_names:
+    model_dropdown.set(model_names[0])  # Set default value
+else:
+    model_dropdown.set("No models found")
 model_dropdown.pack(side="left", fill="x", expand=True)
 
 

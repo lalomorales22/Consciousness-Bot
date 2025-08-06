@@ -47,15 +47,9 @@ The application features:
 - Analysis tab - Practical applications
 - Conscious Bot tab - Interactive AI chat
 
-## Available Models
+## Model Support
 
-- Granite3Moe_3b
-- Qwen2_5_Coder_7b
-- Granite3Dense
-- Phi3_5
-- SmallThinker
-- Gemma
-- And more...
+This application dynamically loads the list of language models available from your local Ollama server. Any models you have pulled or created will be automatically listed in the model selection dropdown menu.
 
 ## Configuration
 
